@@ -1,5 +1,7 @@
 node_modules/
-public/js
+package-lock.json
+
+resources/public/js
 
 /target
 /checkouts
@@ -15,7 +17,10 @@ pom.xml.asc
 .lein-*
 .nrepl-*
 .DS_Store
-package-lock.json
 
 .hgignore
 .hg/
+
+
+.clj-kondo/
+.lsp/
