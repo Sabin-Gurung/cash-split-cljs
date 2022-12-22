@@ -6,11 +6,17 @@
     [reagent.core :as r]
     [reagent.dom :as rdom]))
 
-(def initial-state {:input {:budgets [{:name "sabin" :amount 100}
-                                      {:name "binod" :amount 20}
-                                      {:name "sahara" :amount 57}
-                                      {:name "ashish" :amount 5}]}
-                    :result {:average 0
+; (def initial-state {:input {:budgets [{:name "sabin" :amount 100}
+;                                       {:name "binod" :amount 20}
+;                                       {:name "sahara" :amount 57}
+;                                       {:name "ashish" :amount 5}]}
+;                     :result {:average 0
+;                              :total 0
+;                              :payment-graph []}
+;                     })
+
+(def initial-state {:input {:budgets [{:name "UserName" :amount 0}]}
+                    :result {:avg 0
                              :total 0
                              :payment-graph []}
                     })
@@ -84,7 +90,7 @@
    [:div.row
     [:div.col-5 [input name #(update-name! i %)] ]
     [:div.col-5 [input-number amount #(update-amount! i %)] ]
-    [:div.col-2 [close-button #(remove-budget! i)] ]
+    [:div.col-2.p-1 [close-button #(remove-budget! i)] ]
     ]])
 
 (defn budget-list [budgets]
@@ -93,13 +99,14 @@
      ^{:key i} [budget-item i budget])])
 
 (defn budget-form [budgets]
-  [:div.d-flex.justify-content-start
+  [:div.d-flex.justify-content-center
    [:div.budget-form
     [budget-list budgets]
     [add-button #(add-budget!)]]])
 
 (defn payment-summary [payment-graph] 
-  (let [arr (flatten-payment-graph payment-graph)]
+  (let [arr (->> (flatten-payment-graph payment-graph)
+                 (filter #(pos? (:amount %))))]
     [:div
      (for [[i {:keys [name from-name amount]}] (map-indexed vector arr)]
        ^{:key i}[:div from-name " -> " name " = " amount])
@@ -107,18 +114,20 @@
 
 (defn result-view [{:keys [avg total payment-graph]}]
   [:div.result 
+   [:h3 "Summary:"]
    [:div "Total : " total]
    [:div "Average : " avg]
-   [:div "----------------"]
+   [:div "---------------"]
    [payment-summary payment-graph]
    ])
 
 (defn app []
   (let [model @app-data]
     [:div.app.container
-     [:h3.m-2 "Cash Splitting"]
+     [:h3.m-2.text-center "Cash Splitting"]
      [:hr]
      [budget-form (get-in model [:input :budgets])]
+     [:hr]
      [result-view (:result model)]
      ]))
 

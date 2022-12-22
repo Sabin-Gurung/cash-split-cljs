@@ -1,12 +1,13 @@
 .app {
-  text-align: center;
+  /* text-align: center; */
   /* border: solid 1px red; */
   /* width: clamp(120px, 80%, 1000px); */
   /* margin: auto; */
 }
 
 .budget-form {
-  border: solid 1px red;
+  padding: 4px;
+  width: 800px;
 }
 
 .add-button {
