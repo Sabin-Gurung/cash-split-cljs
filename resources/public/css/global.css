@@ -1,0 +1,18 @@
+.app {
+  text-align: center;
+  /* border: solid 1px red; */
+  /* width: clamp(120px, 80%, 1000px); */
+  /* margin: auto; */
+}
+
+.budget-form {
+  border: solid 1px red;
+}
+
+.add-button {
+  min-width: 100%;
+  max-width: 300px;
+}
+
+.result {
+}
