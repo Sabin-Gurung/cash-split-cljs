@@ -64,34 +64,29 @@
        (mapcat (fn [{:keys [name to-give]}] (map #(assoc % :from-name name) to-give)))))
 
 (defn input [name cb]
-  [:input.w-100.h-100 {:type "text" 
+  [:input {:type "text" 
            :value name
            :on-change #(cb (helper/value %)) }])
 
 (defn input-number [name cb]
-  [:input.w-100.h-100 {:type "text" 
+  [:input {:type "text" 
            :value name
            :on-change #(some-> (helper/int-value %) cb) }])
 
 (defn add-button [cb]
-  [:input.btn.btn-success.add-button.mt-2
-   {:type "button" 
-    :value "+"
-    :on-click cb} ])
+  [:button.add
+   {:on-click cb} "+"])
 
 (defn close-button [cb]
-  [:input.btn.btn-danger.w-100
-   {:type "button" 
-    :value "X"
-    :on-click cb} ])
+  [:button.close
+   {:on-click cb} "X"])
 
 (defn budget-item [i {:keys [name amount]}]
   [:div.budget-item
-   [:div.row
-    [:div.col-5 [input name #(update-name! i %)] ]
-    [:div.col-5 [input-number amount #(update-amount! i %)] ]
-    [:div.col-2.p-1 [close-button #(remove-budget! i)] ]
-    ]])
+   [input name #(update-name! i %) ]
+   [input-number amount #(update-amount! i %) ]
+   [close-button #(remove-budget! i) ]
+   ])
 
 (defn budget-list [budgets]
   [:div
@@ -99,33 +94,32 @@
      ^{:key i} [budget-item i budget])])
 
 (defn budget-form [budgets]
-  [:div.d-flex.justify-content-center
-   [:div.budget-form
-    [budget-list budgets]
-    [add-button #(add-budget!)]]])
+  [:div.budget-form
+   [budget-list budgets]
+   [add-button #(add-budget!)]])
 
 (defn payment-summary [payment-graph] 
   (let [arr (->> (flatten-payment-graph payment-graph)
                  (filter #(pos? (:amount %))))]
-    [:div
+    [:p
      (for [[i {:keys [name from-name amount]}] (map-indexed vector arr)]
-       ^{:key i}[:div from-name " -> " name " = " amount])
+       ^{:key i}[:span from-name " -> " name " = " amount [:br]])
      ]))
 
 (defn result-view [{:keys [avg total payment-graph]}]
   [:div.result 
-   [:h3 "Summary:"]
-   [:div "Total : " total]
-   [:div "Average : " avg]
-   [:div "---------------"]
-   [payment-summary payment-graph]
-   ])
+   [:p "Summary:"]
+   [:p 
+    "Total : " total [:br]
+    "Average : " avg [:br]
+    "----------------------------"
+    ]
+   [payment-summary payment-graph]])
 
 (defn app []
   (let [model @app-data]
-    [:div.app.container
-     [:h3.m-2.text-center "Cash Splitting"]
-     [:hr]
+    [:div.app
+     [:p.title "Cash Split"]
      [budget-form (get-in model [:input :budgets])]
      [:hr]
      [result-view (:result model)]
