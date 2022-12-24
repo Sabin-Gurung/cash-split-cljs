@@ -34,7 +34,7 @@
 
 (defn calculate-budget [data]
   (let [avg (average-cost data)
-        total (apply + (map :amount data))
+        total (round (apply + (map :amount data)))
         data-with-budget (update-budget avg data)
         givers (filter #(neg? (:budget %)) data-with-budget)
         recievers (filter #(not (neg? (:budget %))) data-with-budget)

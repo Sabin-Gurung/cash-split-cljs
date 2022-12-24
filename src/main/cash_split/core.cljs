@@ -1,19 +1,11 @@
 (ns cash-split.core
   (:require
    [cash-split.calculator :as calc]
-   [cash-split.helpers :as helper :refer [copy-to-clipboard]]
+   [cash-split.helpers :as helper :refer [copy-to-clipboard is-number?
+                                          str->num take-if trim-starting-0]]
    [goog.dom :as gdom]
    [reagent.core :as r]
    [reagent.dom :as rdom]))
-
-; (def initial-state {:input {:budgets [{:name "sabin" :amount 100}
-;                                       {:name "binod" :amount 20}
-;                                       {:name "sahara" :amount 57}
-;                                       {:name "ashish" :amount 5}]}
-;                     :result {:average 0
-;                              :total 0
-;                              :payment-graph []}
-;                     })
 
 (def initial-state {:input {:budgets [{:name "UserName" :amount 0}]}
                     :result {:avg 0
@@ -39,9 +31,10 @@
 
 (defn update-amount! [i amount]
   (let [model @app-data]
-    (->> (assoc-in model [:input :budgets i :amount] amount)
-         (update-result)
-         (reset! app-data))))
+    (-> (assoc-in model [:input :budgets i :amount] (str->num amount))
+        (assoc-in [:input :budgets i :amount-str] amount)
+        (update-result)
+        (->> (reset! app-data)))))
 
 (defn remove-budget! [i]
   (let [model @app-data
@@ -71,7 +64,10 @@
 (defn input-number [name cb]
   [:input {:type "text" 
            :value name
-           :on-change #(some-> (helper/int-value %) cb) }])
+           :on-change #(-> (helper/value %)
+                           (trim-starting-0)
+                           (take-if is-number?) 
+                           (some-> cb)) }])
 
 (defn add-button [cb]
   [:button.add
@@ -81,10 +77,10 @@
   [:button.close
    {:on-click cb} "X"])
 
-(defn budget-item [i {:keys [name amount]}]
+(defn budget-item [i {:keys [name amount amount-str]}]
   [:div.budget-item
    [input name #(update-name! i %) ]
-   [input-number amount #(update-amount! i %) ]
+   [input-number (or amount-str amount) #(update-amount! i %) ]
    [close-button #(remove-budget! i) ]
    ])
 
