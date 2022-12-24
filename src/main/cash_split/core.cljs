@@ -1,10 +1,10 @@
 (ns cash-split.core
   (:require
-    [cash-split.calculator :as calc]
-    [cash-split.helpers :as helper]
-    [goog.dom :as gdom]
-    [reagent.core :as r]
-    [reagent.dom :as rdom]))
+   [cash-split.calculator :as calc]
+   [cash-split.helpers :as helper :refer [copy-to-clipboard]]
+   [goog.dom :as gdom]
+   [reagent.core :as r]
+   [reagent.dom :as rdom]))
 
 ; (def initial-state {:input {:budgets [{:name "sabin" :amount 100}
 ;                                       {:name "binod" :amount 20}
@@ -106,7 +106,17 @@
        ^{:key i}[:span from-name " -> " name " = " amount [:br]])
      ]))
 
-(defn result-view [{:keys [avg total payment-graph]}]
+(defn result->text [{:keys [avg total payment-graph]}]
+  (str "Summary:\n"
+       "Total : " total "\n"
+       "Average: " avg "\n"
+       "----------------------\n"
+       (->> (flatten-payment-graph payment-graph)
+            (filter #(pos? (:amount %)))
+            (map (fn [{:keys [name from-name amount]}] (str from-name " -> " name " = " amount "\n")))
+            (apply str))))
+
+(defn result-view [{:keys [avg total payment-graph] :as result}]
   [:div.result 
    [:p "Summary:"]
    [:p 
@@ -114,7 +124,8 @@
     "Average : " avg [:br]
     "----------------------------"
     ]
-   [payment-summary payment-graph]])
+   [payment-summary payment-graph]
+   [:button {:on-click #(copy-to-clipboard (result->text result))} "📋"]])
 
 (defn app []
   (let [model @app-data]
@@ -157,6 +168,11 @@
   (js/alert "hello")
   (vec [1 2])
   (new-default-username)
+  (-> @app-data
+      :result
+      result->text
+      println
+      )
 
   (calc/calculate-budget (-> @app-data :input :budgets))
   (into {} {:a "1" :b {:c "b" :b [1 2]}})
