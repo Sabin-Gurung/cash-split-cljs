@@ -119,10 +119,13 @@
 (defn app []
   (let [model @app-data]
     [:div.app
-     [:p.title "Cash Split"]
+     [:p.title "Ca" [:span.gold "$"] "h " [:span.gold "$"] "plit"]
      [budget-form (get-in model [:input :budgets])]
      [:hr]
      [result-view (:result model)]
+     [:p.footer
+       "Check out " [:a {:target "_blank" :href "https://github.com/Sabin-Gurung/cash-split-cljs"} "source-code"]
+      ]
      ]))
 
 (defn mount-app [] 
